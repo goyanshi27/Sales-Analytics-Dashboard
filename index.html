@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Dashboard Analysis</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-canvas">
+    <canvas id="particleCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+  </div>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ======================== SIDEBAR ======================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-icon"><i class="fa-solid fa-chart-column"></i></div>
+        <span class="brand-name">SalesGG</span>
+      </div>
+      <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Collapse sidebar">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">MAIN MENU</div>
+      <ul>
+        <li class="nav-item active" data-section="overview">
+          <a href="#overview"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+        </li>
+        <li class="nav-item" data-section="sales-performance">
+          <a href="#sales-performance"><i class="fa-solid fa-arrow-trend-up"></i><span>Sales Analytics</span></a>
+        </li>
+        <li class="nav-item" data-section="product-analytics">
+          <a href="#product-analytics"><i class="fa-solid fa-box-open"></i><span>Products</span></a>
+        </li>
+        <li class="nav-item" data-section="customer-analytics">
+          <a href="#customer-analytics"><i class="fa-solid fa-users"></i><span>Customers</span></a>
+        </li>
+        <li class="nav-item" data-section="regional-analytics">
+          <a href="#regional-analytics"><i class="fa-solid fa-map-location-dot"></i><span>Regions</span></a>
+        </li>
+        <li class="nav-item" data-section="order-analytics">
+          <a href="#order-analytics"><i class="fa-solid fa-bag-shopping"></i><span>Orders</span></a>
+        </li>
+        <li class="nav-item" data-section="reports">
+          <a href="#transactions"><i class="fa-solid fa-file-chart-column"></i><span>Reports</span></a>
+        </li>
+        <li class="nav-item" data-section="settings">
+          <a href="#insights"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+        </li>
+      </ul>
+
+      <div class="nav-section-label">ANALYTICS</div>
+      <ul>
+        <li class="nav-item" data-section="profitability">
+          <a href="#profitability"><i class="fa-solid fa-circle-dollar-to-slot"></i><span>Profitability</span></a>
+        </li>
+        <li class="nav-item" data-section="forecast">
+          <a href="#forecast"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Forecast</span></a>
+        </li>
+        <li class="nav-item" data-section="payment-analytics">
+          <a href="#payment-analytics"><i class="fa-solid fa-credit-card"></i><span>Payments</span></a>
+        </li>
+        <li class="nav-item" data-section="return-analytics">
+          <a href="#return-analytics"><i class="fa-solid fa-rotate-left"></i><span>Returns</span></a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+        <div class="user-info">
+          <span class="user-name">Admin User</span>
+          <span class="user-role">Super Admin</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================== MAIN WRAPPER ======================== -->
+  <div class="main-wrapper" id="mainWrapper">
+
+    <!-- ======================== HEADER ======================== -->
+    <header class="top-header" id="topHeader">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="header-title-group">
+          <div class="header-icon"><i class="fa-solid fa-chart-column"></i></div>
+          <div>
+            <h1 class="header-title">Sales Dashboard Analysis</h1>
+            <p class="header-subtitle">Real-Time Sales Intelligence &amp; Business Performance Overview</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Date Range Selector -->
+        <div class="date-range-selector" id="dateRangeSelector">
+          <button class="date-btn" data-range="7">Last 7 Days</button>
+          <button class="date-btn active" data-range="30">Last 30 Days</button>
+          <button class="date-btn" data-range="90">Last 90 Days</button>
+          <button class="date-btn" data-range="365">This Year</button>
+        </div>
+        <!-- Actions -->
+        <div class="header-actions">
+          <button class="icon-btn" id="refreshBtn" title="Refresh Dashboard">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+          <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button class="icon-btn notification-btn" title="Notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notif-badge">3</span>
+          </button>
+          <button class="icon-btn" id="exportBtn" title="Export CSV">
+            <i class="fa-solid fa-download"></i>
+          </button>
+          <button class="icon-btn" id="printBtn" title="Print Dashboard">
+            <i class="fa-solid fa-print"></i>
+          </button>
+          <div class="user-avatar-btn">
+            <i class="fa-solid fa-user-circle"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======================== MAIN CONTENT ======================== -->
+    <main class="main-content" id="mainContent">
+
+      <!-- ===== SECTION: OVERVIEW / KPI ===== -->
+      <section class="dashboard-section" id="overview">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Business Overview</h2>
+            <p class="section-subtitle">Key performance indicators for the selected period</p>
+          </div>
+          <div class="section-badge"><i class="fa-solid fa-bolt"></i> Live</div>
+        </div>
+
+        <!-- KPI Cards Grid -->
+        <div class="kpi-grid" id="kpiGrid">
+          <!-- KPI cards injected by JS -->
+        </div>
+      </section>
+
+      <!-- ===== SECTION: SALES PERFORMANCE ===== -->
+      <section class="dashboard-section" id="sales-performance">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Sales Performance</h2>
+            <p class="section-subtitle">Revenue, orders and profit trend over the year</p>
+          </div>
+          <div class="chart-legend-toggle" id="mainChartLegend"></div>
+        </div>
+        <div class="card chart-card chart-card-large">
+          <div class="card-header-inner">
+            <span class="card-title"><i class="fa-solid fa-chart-line"></i> Revenue &amp; Sales Trend</span>
+            <div class="chart-type-btns">
+              <button class="chart-type-btn active" data-type="line">Line</button>
+              <button class="chart-type-btn" data-type="bar">Bar</button>
+            </div>
+          </div>
+          <div class="chart-container chart-large">
+            <canvas id="mainTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Revenue Analytics Row -->
+        <div class="charts-grid-2">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Monthly Revenue</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Monthly Profit</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="monthlyProfitChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-grid-2">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-bullseye"></i> Revenue vs Target</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="revenueTargetChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-percent"></i> Profit Margin Trend</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="profitMarginChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: PRODUCT ANALYTICS ===== -->
+      <section class="dashboard-section" id="product-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Product Analytics</h2>
+            <p class="section-subtitle">Top-performing products by revenue, units and profit</p>
+          </div>
+        </div>
+        <div class="charts-grid-2">
+          <div class="card chart-card chart-card-tall">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-ranking-star"></i> Top 10 Products by Revenue</span>
+            </div>
+            <div class="chart-container chart-tall">
+              <canvas id="topProductsChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card chart-card-tall">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-layer-group"></i> Category Distribution</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="categoryDonutChart"></canvas>
+            </div>
+            <div class="donut-legend" id="categoryLegend"></div>
+          </div>
+        </div>
+
+        <!-- Product Table -->
+        <div class="card table-card">
+          <div class="card-header-inner">
+            <span class="card-title"><i class="fa-solid fa-table"></i> Product Performance Table</span>
+            <div class="table-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="productSearch" placeholder="Search products…" class="table-search" />
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table" id="productTable">
+              <thead>
+                <tr>
+                  <th data-sort="product">Product <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="units">Units Sold <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="revenue">Revenue <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="profit">Profit <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="margin">Margin <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="growth">Growth <i class="fa-solid fa-sort"></i></th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: CUSTOMER ANALYTICS ===== -->
+      <section class="dashboard-section" id="customer-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Customer Analytics</h2>
+            <p class="section-subtitle">Customer acquisition, retention and segment breakdown</p>
+          </div>
+        </div>
+        <div class="charts-grid-3">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-user-group"></i> New vs Returning</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="newReturningChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-line"></i> Customer Growth</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="customerGrowthChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-users-rectangle"></i> Customer Segments</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="customerSegmentChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer KPI Cards -->
+        <div class="customer-kpi-row" id="customerKpiRow"></div>
+
+        <!-- Radar Chart -->
+        <div class="charts-grid-2">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-spider"></i> Customer Performance Radar</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="customerRadarChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-scatter"></i> Revenue vs Order Scatter</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="scatterChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: REGIONAL ANALYTICS ===== -->
+      <section class="dashboard-section" id="regional-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Regional Analytics</h2>
+            <p class="section-subtitle">State-wise sales performance across India</p>
+          </div>
+        </div>
+        <div class="charts-grid-2">
+          <div class="card chart-card chart-card-tall">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-map"></i> Region Revenue Breakdown</span>
+            </div>
+            <div class="chart-container chart-tall">
+              <canvas id="regionalBarChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card chart-card-tall">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-pie"></i> Regional Revenue Share</span>
+            </div>
+            <div class="chart-container chart-tall">
+              <canvas id="regionalPolarChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="card">
+          <div class="card-header-inner">
+            <span class="card-title"><i class="fa-solid fa-fire"></i> Sales Heatmap — Region × Month</span>
+          </div>
+          <div class="heatmap-wrapper" id="heatmapWrapper"></div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: SALES FUNNEL ===== -->
+      <section class="dashboard-section" id="sales-funnel">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Sales Funnel</h2>
+            <p class="section-subtitle">Visitor to purchase conversion pipeline</p>
+          </div>
+        </div>
+        <div class="charts-grid-2">
+          <div class="card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-filter"></i> Conversion Funnel</span>
+            </div>
+            <div class="funnel-container" id="funnelContainer"></div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Funnel Stage Volumes</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="funnelBarChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: TARGET VS ACTUAL ===== -->
+      <section class="dashboard-section" id="target-actual">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Target vs Actual</h2>
+            <p class="section-subtitle">Performance against set business targets</p>
+          </div>
+        </div>
+        <div class="target-progress-row" id="targetProgressRow"></div>
+        <div class="card chart-card" style="margin-top:1.5rem">
+          <div class="card-header-inner">
+            <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Target vs Actual — Grouped Bar</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="targetGroupedChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: TIME ANALYTICS ===== -->
+      <section class="dashboard-section" id="time-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Time Analytics</h2>
+            <p class="section-subtitle">Sales patterns by day of week and hour of day</p>
+          </div>
+        </div>
+        <div class="charts-grid-2">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-calendar-week"></i> Sales by Day of Week</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="dayOfWeekChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-clock"></i> Sales by Hour of Day</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="hourOfDayChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: ORDER ANALYTICS ===== -->
+      <section class="dashboard-section" id="order-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Order Analytics</h2>
+            <p class="section-subtitle">Order status breakdown and volume trend</p>
+          </div>
+        </div>
+        <div class="charts-grid-3">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-circle-check"></i> Order Status</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="orderStatusChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card" style="grid-column: span 2;">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-area"></i> Order Volume Trend</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="orderVolumeTrendChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: PAYMENT ANALYTICS ===== -->
+      <section class="dashboard-section" id="payment-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Payment Analytics</h2>
+            <p class="section-subtitle">Payment method preferences and transaction distribution</p>
+          </div>
+        </div>
+        <div class="charts-grid-2">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-wallet"></i> Payment Method Share</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="paymentDonutChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Revenue by Payment Method</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="paymentBarChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="payment-method-cards" id="paymentMethodCards"></div>
+      </section>
+
+      <!-- ===== SECTION: PROFITABILITY ===== -->
+      <section class="dashboard-section" id="profitability">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Profitability Analytics</h2>
+            <p class="section-subtitle">Gross profit, net profit, costs and margins</p>
+          </div>
+        </div>
+        <div class="charts-grid-2">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Cost vs Revenue</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="costRevenueStackedChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-line"></i> Net Profit Trend</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="netProfitChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="profitability-kpi-row" id="profitabilityKpiRow"></div>
+      </section>
+
+      <!-- ===== SECTION: RETURN & REFUND ===== -->
+      <section class="dashboard-section" id="return-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Return &amp; Refund Analytics</h2>
+            <p class="section-subtitle">Return rates, refund amounts and top returned products</p>
+          </div>
+        </div>
+        <div class="charts-grid-2">
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-rotate-left"></i> Return Rate Trend</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="returnRateChart"></canvas>
+            </div>
+          </div>
+          <div class="card chart-card">
+            <div class="card-header-inner">
+              <span class="card-title"><i class="fa-solid fa-chart-bar"></i> Top Returned Products</span>
+            </div>
+            <div class="chart-container chart-sm">
+              <canvas id="returnProductsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: FORECAST ===== -->
+      <section class="dashboard-section" id="forecast">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Sales Forecast</h2>
+            <p class="section-subtitle">Projected revenue based on historical sales trends</p>
+          </div>
+          <div class="forecast-note">
+            <i class="fa-solid fa-circle-info"></i>
+            Forecast calculated from historical sales trends in demo dataset. Not a real ML prediction.
+          </div>
+        </div>
+        <div class="card chart-card chart-card-large">
+          <div class="card-header-inner">
+            <span class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Revenue Forecast — Historical + Projected</span>
+          </div>
+          <div class="chart-container chart-large">
+            <canvas id="forecastChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Advanced Analytics Cards -->
+        <div class="advanced-analytics-grid" id="advancedAnalyticsGrid"></div>
+      </section>
+
+      <!-- ===== SECTION: TRANSACTIONS TABLE ===== -->
+      <section class="dashboard-section" id="transactions">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Sales Transactions</h2>
+            <p class="section-subtitle">Complete transaction records with search, sort and filter</p>
+          </div>
+          <button class="btn-primary" id="exportTableBtn">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+          </button>
+        </div>
+
+        <!-- Filters Row -->
+        <div class="table-filters" id="tableFilters">
+          <div class="filter-group">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="txSearch" placeholder="Search orders, customers…" class="filter-input" />
+          </div>
+          <select class="filter-select" id="filterCategory">
+            <option value="">All Categories</option>
+          </select>
+          <select class="filter-select" id="filterRegion">
+            <option value="">All Regions</option>
+          </select>
+          <select class="filter-select" id="filterPayment">
+            <option value="">All Payments</option>
+          </select>
+          <select class="filter-select" id="filterStatus">
+            <option value="">All Statuses</option>
+          </select>
+          <button class="btn-reset" id="resetFiltersBtn">
+            <i class="fa-solid fa-xmark"></i> Reset
+          </button>
+        </div>
+
+        <!-- Table -->
+        <div class="card table-card">
+          <div class="table-wrapper">
+            <table class="data-table" id="txTable">
+              <thead>
+                <tr>
+                  <th data-sort="id">Order ID <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="date">Date <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="customer">Customer <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="product">Product <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="category">Category <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="region">Region <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="quantity">Qty <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="revenue">Revenue <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="profit">Profit <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="payment">Payment <i class="fa-solid fa-sort"></i></th>
+                  <th data-sort="status">Status <i class="fa-solid fa-sort"></i></th>
+                </tr>
+              </thead>
+              <tbody id="txTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-pagination" id="txPagination"></div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION: AI INSIGHTS ===== -->
+      <section class="dashboard-section" id="insights">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">AI Business Insights</h2>
+            <p class="section-subtitle">Data-driven insights generated from your sales dataset</p>
+          </div>
+          <div class="ai-badge"><i class="fa-solid fa-microchip-ai"></i> AI Powered</div>
+        </div>
+        <div class="insights-grid" id="insightsGrid"></div>
+      </section>
+
+    </main><!-- /.main-content -->
+
+    <!-- ======================== FOOTER ======================== -->
+    <footer class="main-footer">
+      <span>Sales Dashboard Analysis &bull; Business Intelligence Dashboard</span>
+      <span>Built with Chart.js &bull; <i class="fa-regular fa-heart" style="color:#e2486a"></i> Premium Analytics</span>
+    </footer>
+
+  </div><!-- /.main-wrapper -->
+
+  <!-- Main JS -->
+  <script src="script.js"></script>
+</body>
+</html>
